@@ -136,6 +136,8 @@ export default function App() {
             } />
             <Route path="profile" element={<Profile />} />
           </Route>
+          {/* Catch-all route to handle 404 / unknown URLs */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
     </LanguageProvider>
