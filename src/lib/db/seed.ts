@@ -20,7 +20,6 @@ export const DEFAULT_USERS: UserRecord[] = [
   {
     id: REAL_USER_IDS.ADMIN,
     email: 'tharun@gmail.com',
-    name: 'Tharun',
     fullName: 'Tharun',
     role: 'ADMIN',
     createdAt: '2025-01-15T08:00:00Z',
