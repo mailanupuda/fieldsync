@@ -20,6 +20,7 @@ import {
   Check,
   ShieldCheck,
   AlertTriangle,
+  RotateCw,
 } from 'lucide-react';
 import type { WorkEvidence, EvidenceStage } from '@/types/db';
 
@@ -41,7 +42,7 @@ export default function BeforeAfterEvidenceTab({
   readOnly = false,
 }: BeforeAfterEvidenceTabProps) {
   const { user } = useAuthStore();
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
   const [activeStage, setActiveStage] = useState<EvidenceStage>('BEFORE');
@@ -66,10 +67,32 @@ export default function BeforeAfterEvidenceTab({
     timestamp: new Date().toLocaleTimeString(),
   });
 
-  // Live GPS watcher
+  // Request fresh high-accuracy GPS position
+  const refreshGps = useCallback(() => {
+    if (typeof navigator !== 'undefined' && 'geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          setLiveGps({
+            latitude: pos.coords.latitude,
+            longitude: pos.coords.longitude,
+            accuracy: pos.coords.accuracy,
+            altitude: pos.coords.altitude,
+            timestamp: new Date().toLocaleTimeString(),
+          });
+        },
+        (err) => {
+          console.debug('Immediate GPS fix error:', err.message);
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
+    }
+  }, []);
+
+  // Live GPS continuous watcher
   useEffect(() => {
     let watchId: number | null = null;
     if (typeof navigator !== 'undefined' && 'geolocation' in navigator) {
+      refreshGps();
       watchId = navigator.geolocation.watchPosition(
         (pos) => {
           setLiveGps({
@@ -81,7 +104,7 @@ export default function BeforeAfterEvidenceTab({
           });
         },
         (err) => {
-          console.debug('Live GPS notice:', err.message);
+          console.debug('Live GPS watch notice:', err.message);
         },
         { enableHighAccuracy: true, timeout: 10000, maximumAge: 3000 }
       );
@@ -91,7 +114,7 @@ export default function BeforeAfterEvidenceTab({
         navigator.geolocation.clearWatch(watchId);
       }
     };
-  }, []);
+  }, [refreshGps]);
 
   // Stop camera stream helper
   const stopLiveCamera = useCallback(() => {
@@ -107,11 +130,12 @@ export default function BeforeAfterEvidenceTab({
     setCameraError(null);
   }, []);
 
-  // Start live camera stream
+  // Start live camera stream with multi-tier fallback
   const startLiveCamera = useCallback(async (mode: 'environment' | 'user' = facingMode) => {
     setIsCameraLoading(true);
     setCameraError(null);
     setIsLiveCameraOpen(true);
+    refreshGps();
 
     if (streamRef.current) {
       streamRef.current.getTracks().forEach((track) => track.stop());
@@ -119,27 +143,48 @@ export default function BeforeAfterEvidenceTab({
     }
 
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: mode,
-          width: { ideal: 1920 },
-          height: { ideal: 1080 },
-        },
-        audio: false,
-      });
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error('MediaDevices camera API not supported in this browser.');
+      }
+
+      let stream: MediaStream;
+      try {
+        // Preferred high-quality constraint
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: { ideal: mode },
+            width: { ideal: 1280 },
+            height: { ideal: 720 },
+          },
+          audio: false,
+        });
+      } catch (e1) {
+        console.warn('Preferred camera constraint failed, using generic video fallback:', e1);
+        // Fallback constraint (works on laptops/webcams and all phones)
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+          audio: false,
+        });
+      }
 
       streamRef.current = stream;
+
+      // Attach stream to video element if already mounted
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-        await videoRef.current.play();
+        try {
+          await videoRef.current.play();
+        } catch {
+          // Auto-play was prevented; video tag has autoPlay and playsInline
+        }
       }
     } catch (err) {
       console.warn('Live camera access failed:', err);
-      setCameraError('Unable to access device camera hardware. Live camera is strictly required.');
+      setCameraError('Unable to open live camera. Please ensure camera permissions are granted in browser settings.');
     } finally {
       setIsCameraLoading(false);
     }
-  }, [facingMode]);
+  }, [facingMode, refreshGps]);
 
   // Toggle camera direction
   const handleToggleFacingMode = () => {
@@ -151,19 +196,25 @@ export default function BeforeAfterEvidenceTab({
   // GPS lock status
   const isGpsLocked = Boolean(liveGps.latitude && liveGps.longitude);
 
-  // Capture frame from live video with GPS Watermark (GPS is STRICTLY MANDATORY)
+  // Capture frame from live video with GPS Watermark (GPS is MANDATORY)
   const handleCaptureLiveSnapshot = () => {
     const video = videoRef.current;
-    if (!video || video.videoWidth === 0) return;
-
-    if (!isGpsLocked || !liveGps.latitude || !liveGps.longitude) {
-      alert('GPS location is strictly mandatory! Please wait for satellite lock before snapping evidence.');
+    if (!video) {
+      alert('Camera viewfinder not ready yet.');
       return;
     }
 
+    if (!isGpsLocked || !liveGps.latitude || !liveGps.longitude) {
+      alert('GPS location is strictly mandatory! Please allow location access or wait for satellite lock.');
+      return;
+    }
+
+    const width = video.videoWidth || video.clientWidth || 1280;
+    const height = video.videoHeight || video.clientHeight || 720;
+
     const canvas = document.createElement('canvas');
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
+    canvas.width = width;
+    canvas.height = height;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
@@ -462,9 +513,19 @@ export default function BeforeAfterEvidenceTab({
                 </span>
               )}
             </div>
-            <span className="text-[11px] text-zinc-400 font-mono hidden md:inline">
-              {liveGps.timestamp}
-            </span>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={refreshGps}
+                className="text-[11px] text-indigo-600 hover:text-indigo-800 font-semibold flex items-center gap-1 cursor-pointer"
+                title="Refresh GPS satellite fix"
+              >
+                <RotateCw size={11} /> Refresh Fix
+              </button>
+              <span className="text-[11px] text-zinc-400 font-mono hidden md:inline">
+                {liveGps.timestamp}
+              </span>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -519,7 +580,7 @@ export default function BeforeAfterEvidenceTab({
                         <span className="text-sm font-bold text-zinc-900 block">Open Live Camera Viewfinder</span>
                         <span className="text-xs text-indigo-700 font-medium flex items-center gap-1 mt-0.5">
                           <MapPin size={12} className="text-indigo-600" />
-                          {isGpsLocked ? 'GPS Lock Active · Ready to Snap' : 'GPS Satellite Acquisition Required'}
+                          {isGpsLocked ? 'GPS Lock Active · Ready to Snap' : 'Live Camera + Real-Time Geotag'}
                         </span>
                       </div>
                     </div>
@@ -641,7 +702,13 @@ export default function BeforeAfterEvidenceTab({
                 </div>
               ) : (
                 <video
-                  ref={videoRef}
+                  ref={(node) => {
+                    videoRef.current = node;
+                    if (node && streamRef.current && node.srcObject !== streamRef.current) {
+                      node.srcObject = streamRef.current;
+                      node.play().catch(() => {});
+                    }
+                  }}
                   autoPlay
                   playsInline
                   muted
@@ -686,7 +753,16 @@ export default function BeforeAfterEvidenceTab({
                         </p>
                       </div>
                     ) : (
-                      <p className="text-amber-300 animate-pulse">Acquiring GPS Satellites…</p>
+                      <div className="flex items-center gap-1.5">
+                        <p className="text-amber-300 animate-pulse">Acquiring Satellites…</p>
+                        <button
+                          type="button"
+                          onClick={refreshGps}
+                          className="px-1.5 py-0.5 bg-zinc-800 rounded text-[10px] text-white hover:bg-zinc-700"
+                        >
+                          Retry GPS
+                        </button>
+                      </div>
                     )}
                   </div>
 
