@@ -18,7 +18,7 @@
 
 - **Vercel Production App**: **[https://fieldsyncerode.vercel.app](https://fieldsyncerode.vercel.app)** *(Full PWA offline caching, Service Worker, and responsive UI)*
 - **Cloudflare Edge Tunnel**: **[https://wife-assuming-seem-questionnaire.trycloudflare.com](https://wife-assuming-seem-questionnaire.trycloudflare.com)** *(Instant public edge access with zero configuration)*
-- **GitHub Repository**: **[https://github.com/Tharun4743/FieldSync](https://github.com/Tharun4743/FieldSync)**
+- **GitHub Repository**: **[https://github.com/mailanupuda/fieldsync](https://github.com/mailanupuda/fieldsync)**
 
 ---
 
@@ -222,7 +222,7 @@ npm run build
 
 ```bash
 # Clone the repository
-git clone https://github.com/Tharun4743/FieldSync.git
+git clone https://github.com/mailanupuda/fieldsync.git
 cd FieldSync
 
 # Install dependencies
