@@ -107,22 +107,36 @@ class PermissionManager {
    */
   async requestGeolocation(): Promise<GeolocationPosition | null> {
     return new Promise((resolve) => {
-      if (!('geolocation' in navigator)) {
+      if (typeof navigator === 'undefined' || !('geolocation' in navigator)) {
         resolve(null);
         return;
       }
+      // 1. Try High Accuracy (GPS Satellites)
       navigator.geolocation.getCurrentPosition(
         (pos) => {
           this._cache.geolocation = 'granted';
           resolve(pos);
         },
         (err) => {
-          if (err.code === GeolocationPositionError.PERMISSION_DENIED) {
+          if (err.code === 1) {
+            // Permission Denied
             this._cache.geolocation = 'denied';
+            resolve(null);
+            return;
           }
-          resolve(null);
+          // 2. Fallback to network / Wi-Fi geolocation if satellite GPS times out
+          navigator.geolocation.getCurrentPosition(
+            (posFallback) => {
+              this._cache.geolocation = 'granted';
+              resolve(posFallback);
+            },
+            () => {
+              resolve(null);
+            },
+            { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 }
+          );
         },
-        { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
+        { enableHighAccuracy: true, timeout: 5000, maximumAge: 5000 }
       );
     });
   }

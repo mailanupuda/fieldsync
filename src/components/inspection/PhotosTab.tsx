@@ -2,6 +2,7 @@ import { useRef, useState, useEffect, useCallback } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../lib/db/database';
 import { syncManager } from '../../lib/sync/syncManager';
+import { permissionManager } from '@/lib/permissions/permissionManager';
 import {
   Camera,
   Upload,
@@ -56,24 +57,21 @@ export default function PhotosTab({ inspectionId, onCapture, readOnly }: Props) 
     [inspectionId]
   );
 
-  // Request fresh high-accuracy GPS position
-  const refreshGps = useCallback(() => {
-    if (typeof navigator !== 'undefined' && 'geolocation' in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          setLiveGps({
-            latitude: pos.coords.latitude,
-            longitude: pos.coords.longitude,
-            accuracy: pos.coords.accuracy,
-            altitude: pos.coords.altitude,
-            timestamp: new Date().toLocaleTimeString(),
-          });
-        },
-        (err) => {
-          console.debug('Immediate GPS fix error:', err.message);
-        },
-        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-      );
+  // Request fresh high-accuracy GPS position with network fallback
+  const refreshGps = useCallback(async () => {
+    try {
+      const pos = await permissionManager.requestGeolocation();
+      if (pos) {
+        setLiveGps({
+          latitude: pos.coords.latitude,
+          longitude: pos.coords.longitude,
+          accuracy: pos.coords.accuracy,
+          altitude: pos.coords.altitude,
+          timestamp: new Date().toLocaleTimeString(),
+        });
+      }
+    } catch (err) {
+      console.debug('Immediate GPS fix error:', err);
     }
   }, []);
 

@@ -1,6 +1,6 @@
 import type { ChecklistItemRecord, InspectionResultRecord } from '../../types/db.types';
-import { useState, useRef } from 'react';
-import { CheckCircle2, AlertCircle, Volume2, Mic, Camera, XCircle, ChevronDown } from 'lucide-react';
+import { useState } from 'react';
+import { CheckCircle2, Volume2, Mic, Camera, XCircle, ChevronDown } from 'lucide-react';
 import { readAloud } from '@/lib/speech/speechService';
 import { useLanguageStore } from '@/stores/languageStore';
 import VoiceNoteRecorder from './VoiceNoteRecorder';
@@ -61,34 +61,64 @@ function ChecklistItemCard({
   const [isReading, setIsReading] = useState(false);
   const [showVoiceRecorder, setShowVoiceRecorder] = useState(false);
   const [capturingPhoto, setCapturingPhoto] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const value = result?.value ?? '';
-  const hasValue = value !== '';
 
   async function handleRead() {
     setIsReading(true);
     await readAloud(item.question, language, () => setIsReading(false));
   }
 
-  async function handlePhotoCapture(e: React.ChangeEvent<HTMLInputElement>) {
-    const files = e.target.files;
-    if (!files || files.length === 0 || !user) return;
+  async function handleLiveCameraCapture() {
+    if (!user) return;
     setCapturingPhoto(true);
     try {
-      const file = files[0];
-      await queueMedia({
-        inspectionId: item.inspectionId,
-        checklistItemId: item.id,
-        file,
-        fileName: file.name,
-        userId: user.id,
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: 'environment' } },
+        audio: false,
       });
+
+      const video = document.createElement('video');
+      video.srcObject = stream;
+      video.playsInline = true;
+      video.muted = true;
+      await video.play();
+
+      // Small delay to ensure frame is loaded
+      await new Promise((r) => setTimeout(r, 400));
+
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth || 1280;
+      canvas.height = video.videoHeight || 720;
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      }
+
+      // Stop tracks
+      stream.getTracks().forEach((t) => t.stop());
+
+      const blob = await new Promise<Blob | null>((resolve) =>
+        canvas.toBlob(resolve, 'image/jpeg', 0.9)
+      );
+
+      if (blob) {
+        const file = new File([blob], `item_${item.id}_${Date.now()}.jpg`, {
+          type: 'image/jpeg',
+        });
+        await queueMedia({
+          inspectionId: item.inspectionId,
+          checklistItemId: item.id,
+          file,
+          fileName: file.name,
+          userId: user.id,
+        });
+      }
     } catch (err) {
-      console.error('Error saving checklist photo:', err);
+      console.warn('Live camera capture for checklist error:', err);
+      alert('Camera access required. Gallery uploads are strictly blocked.');
     } finally {
       setCapturingPhoto(false);
-      if (fileInputRef.current) fileInputRef.current.value = '';
     }
   }
 
@@ -98,28 +128,23 @@ function ChecklistItemCard({
         <div className="flex-1">
           <div className="flex items-center gap-2">
             <p className="text-zinc-900 font-bold text-sm leading-snug">{item.question}</p>
-            <button
-              type="button"
-              onClick={() => void handleRead()}
-              className={`p-1 rounded-lg text-xs font-bold border transition-colors cursor-pointer shrink-0 ${
-                isReading ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border-indigo-200'
-              }`}
-              title="Read Aloud"
-            >
-              <Volume2 size={13} />
-            </button>
+            {item.required && (
+              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-sm bg-rose-50 text-rose-600 border border-rose-200 shrink-0">
+                {t('term.required')}
+              </span>
+            )}
           </div>
-          {item.required && (
-            <span className="text-[11px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200/60 inline-block mt-1">
-              Required
-            </span>
-          )}
         </div>
-        {hasValue ? (
-          <CheckCircle2 size={20} className="text-emerald-600 shrink-0 mt-0.5" />
-        ) : (
-          <AlertCircle size={20} className="text-zinc-300 shrink-0 mt-0.5" />
-        )}
+        <button
+          type="button"
+          onClick={() => void handleRead()}
+          disabled={isReading}
+          className="h-8 w-8 rounded-lg bg-zinc-100 hover:bg-zinc-200 text-zinc-600 flex items-center justify-center transition-all cursor-pointer disabled:opacity-50 shrink-0"
+          title={t('term.readAloud')}
+          aria-label={t('term.readAloud')}
+        >
+          <Volume2 size={16} className={isReading ? 'text-indigo-600 animate-pulse' : ''} />
+        </button>
       </div>
 
       <ChecklistInput item={item} value={value} onChange={onUpdate} readOnly={readOnly} />
@@ -138,21 +163,14 @@ function ChecklistItemCard({
             </button>
             <button
               type="button"
-              onClick={() => fileInputRef.current?.click()}
+              onClick={() => void handleLiveCameraCapture()}
               disabled={capturingPhoto}
               className="h-7 px-2 rounded-lg font-bold text-[11px] bg-zinc-50 hover:bg-zinc-100 text-zinc-600 flex items-center gap-1 border border-zinc-200 cursor-pointer disabled:opacity-50"
+              title="Capture Live Photo (Gallery blocked)"
             >
               <Camera size={12} className="text-indigo-600" />
-              {capturingPhoto ? 'Saving...' : t('term.photo')}
+              {capturingPhoto ? 'Snapping...' : 'Live Photo'}
             </button>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              capture="environment"
-              className="hidden"
-              onChange={(e) => void handlePhotoCapture(e)}
-            />
           </div>
 
           {result && (

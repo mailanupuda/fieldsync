@@ -360,8 +360,12 @@ export async function syncFromSupabase(): Promise<boolean> {
           after_value: e.afterValue ?? null,
           created_at: typeof e.createdAt === 'string' ? e.createdAt : String(e.createdAt),
         }));
-        await supabase.from('audit_events').upsert(rows, { onConflict: 'id' });
-        console.info(`[CloudSync] Pushed ${rows.length} audit events to Supabase.`);
+        const { error: auditError } = await supabase.from('audit_events').upsert(rows, { onConflict: 'id' });
+        if (!auditError) {
+          console.info(`[CloudSync] Pushed ${rows.length} audit events to Supabase.`);
+        } else {
+          console.debug('[CloudSync] Remote audit_events table write skipped (RLS/local mode):', auditError.message);
+        }
       }
     } catch {
       // Non-critical — audit push failures don't block sync
