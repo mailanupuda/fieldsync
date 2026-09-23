@@ -306,7 +306,8 @@ export default function DashboardPage() {
       {/* ────────────────────────────────────────────────────────── */}
       {isTechnician && recentProgress && resumeInspection && (
         <div
-          className="bg-linear-to-r from-zinc-950 via-zinc-900 to-indigo-950 text-white rounded-3xl p-6 sm:p-7 shadow-xl border border-zinc-800 space-y-4"
+          className="bg-zinc-950 bg-gradient-to-r from-zinc-950 via-zinc-900 to-indigo-950 text-white rounded-3xl p-6 sm:p-7 shadow-xl border border-zinc-800 space-y-4"
+          style={{ backgroundColor: '#09090b', color: '#ffffff' }}
           id="card-resume-inspection"
         >
           <div className="flex items-center justify-between gap-2 flex-wrap">
@@ -332,7 +333,7 @@ export default function DashboardPage() {
                 )}
                 <span className="text-xs font-semibold text-zinc-400">{resumeInspection.siteName}</span>
               </div>
-              <h2 className="text-xl sm:text-2xl font-black tracking-tight">{resumeInspection.title}</h2>
+              <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white">{resumeInspection.title}</h2>
             </div>
 
             <div className="text-left sm:text-right shrink-0">
@@ -346,7 +347,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Progress Bar */}
-          <div className="w-full bg-zinc-800 h-2 rounded-full overflow-hidden">
+          <div className="w-full bg-zinc-800 h-2.5 rounded-full overflow-hidden border border-zinc-700/60">
             <div
               className="bg-emerald-400 h-full rounded-full transition-all duration-300"
               style={{
@@ -360,7 +361,7 @@ export default function DashboardPage() {
           {/* Last Completed & Next Incomplete Items */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 text-xs">
             {recentProgress.lastChecklistTitle && (
-              <div className="bg-white/5 border border-white/10 rounded-xl p-3">
+              <div className="bg-zinc-900/90 border border-zinc-800 rounded-xl p-3">
                 <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block mb-1">
                   Last Completed
                 </span>
@@ -372,7 +373,7 @@ export default function DashboardPage() {
             )}
 
             {recentProgress.nextChecklistTitle ? (
-              <div className="bg-indigo-500/10 border border-indigo-500/20 rounded-xl p-3">
+              <div className="bg-indigo-950/60 border border-indigo-500/30 rounded-xl p-3">
                 <span className="text-[10px] font-bold text-indigo-300 uppercase tracking-wider block mb-1">
                   Next Checklist Item
                 </span>
@@ -382,7 +383,7 @@ export default function DashboardPage() {
                 </p>
               </div>
             ) : (
-              <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-3">
+              <div className="bg-emerald-950/40 border border-emerald-500/30 rounded-xl p-3">
                 <p className="font-bold text-emerald-300 flex items-center gap-1.5">
                   <CheckCircle2 size={14} />
                   Inspection Ready for Submission
@@ -409,7 +410,7 @@ export default function DashboardPage() {
 
             <button
               onClick={() => navigate(`/inspections/${resumeInspection.id}`)}
-              className="h-12 px-4 rounded-2xl bg-white/10 hover:bg-white/15 text-white font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
+              className="h-12 px-4 rounded-2xl bg-zinc-800/90 hover:bg-zinc-700 text-zinc-100 font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer border border-zinc-700/80 transition-colors"
             >
               View Full Overview
             </button>
