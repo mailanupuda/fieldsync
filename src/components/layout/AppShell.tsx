@@ -351,7 +351,7 @@ function BottomNav() {
 
   return (
     <nav
-      className="md:hidden bg-white/95 backdrop-blur-md border-t border-zinc-200/80 px-2 py-1.5 fixed bottom-0 left-0 right-0 z-50 shadow-lg"
+      className="md:hidden bg-white/95 backdrop-blur-md border-t border-zinc-200/80 px-2 py-1.5 fixed bottom-0 left-0 right-0 z-30 shadow-lg"
       style={{ paddingBottom: 'max(0.375rem, env(safe-area-inset-bottom, 0.375rem))' }}
     >
       <div className="flex items-center justify-around">

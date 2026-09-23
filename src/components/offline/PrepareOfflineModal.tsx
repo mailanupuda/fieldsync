@@ -88,7 +88,7 @@ export default function PrepareOfflineModal({ isOpen, onClose }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[100] bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
       <div className="bg-white rounded-3xl border border-zinc-200 shadow-2xl max-w-lg w-full overflow-hidden animate-fade-in flex flex-col max-h-[90vh]">
         {/* Header */}
         <div className="p-5 border-b border-zinc-100 flex items-center justify-between">

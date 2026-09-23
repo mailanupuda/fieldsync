@@ -60,7 +60,7 @@ export default function OfflineSearchModal({ isOpen, onClose }: Props) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-start justify-center p-4 pt-12 sm:pt-20">
+    <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-xs flex items-start justify-center p-4 pt-12 sm:pt-20">
       <div className="bg-white rounded-3xl w-full max-w-xl shadow-2xl border border-zinc-200 overflow-hidden flex flex-col max-h-[85vh] animate-in fade-in zoom-in-95 duration-150">
         {/* Search Input Bar */}
         <div className="p-4 border-b border-zinc-100 flex items-center gap-3">

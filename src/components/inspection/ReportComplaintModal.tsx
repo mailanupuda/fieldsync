@@ -288,286 +288,288 @@ export default function ReportComplaintModal({ isOpen, onClose, onSuccess }: Pro
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-900/60 backdrop-blur-xs animate-fade-in">
-      <div className="bg-white rounded-3xl border border-zinc-200 shadow-2xl max-w-lg w-full overflow-hidden flex flex-col max-h-[92vh]">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 bg-zinc-900/70 backdrop-blur-xs animate-fade-in">
+      <div className="bg-white rounded-3xl border border-zinc-200 shadow-2xl max-w-lg w-full overflow-hidden flex flex-col max-h-[88vh] sm:max-h-[90vh] my-auto">
         {/* Header */}
-        <div className="flex items-center justify-between p-5 border-b border-zinc-100 bg-gradient-to-r from-rose-50/60 via-amber-50/40 to-indigo-50/30">
-          <div className="flex items-center gap-2.5">
+        <div className="flex items-center justify-between p-4 sm:p-5 border-b border-zinc-100 bg-gradient-to-r from-rose-50/60 via-amber-50/40 to-indigo-50/30 shrink-0">
+          <div className="flex items-center gap-2.5 min-w-0">
             <div className="w-9 h-9 rounded-xl bg-rose-600 text-white flex items-center justify-center shrink-0 shadow-xs">
               <AlertTriangle size={18} />
             </div>
-            <div>
-              <h2 className="text-base font-bold text-zinc-900">Report Service Issue / Defect</h2>
-              <p className="text-[11px] font-medium text-zinc-500">
-                Log a field problem. Admin will review and assign a Supervisor and Technician.
+            <div className="min-w-0">
+              <h2 className="text-sm sm:text-base font-bold text-zinc-900 truncate">Report Service Issue / Defect</h2>
+              <p className="text-[11px] font-medium text-zinc-500 line-clamp-1">
+                Log a field problem. Admin will review and assign a team.
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 transition-colors cursor-pointer"
+            className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 transition-colors cursor-pointer shrink-0 ml-2"
             id="btn-close-complaint-modal"
           >
             <X size={18} />
           </button>
         </div>
 
-        {/* Form Body */}
-        <form onSubmit={handleSubmit} className="p-5 space-y-4 overflow-y-auto flex-1">
-          {error && (
-            <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold flex items-center gap-2">
-              <AlertTriangle size={14} />
-              {error}
-            </div>
-          )}
-
-          {offlineNotice && (
-            <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center gap-2 animate-fade-in">
-              <CheckCircle size={14} />
-              {offlineNotice}
-            </div>
-          )}
-
-          {/* Customer / Reporter Contact */}
-          <div className="p-3.5 bg-zinc-50 rounded-2xl border border-zinc-200/70 space-y-3">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 block">
-              1. Customer / Reporter Information
-            </span>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-              <div>
-                <label className="text-[11px] font-semibold text-zinc-700 block mb-1">
-                  Full Name <span className="text-rose-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  required
-                  className="w-full h-9 px-2.5 bg-white border border-zinc-200 rounded-lg text-xs text-zinc-900 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500"
-                  placeholder="Enter your full name"
-                  value={customerName}
-                  onChange={e => setCustomerName(e.target.value)}
-                  id="input-customer-name"
-                />
+        {/* Form Body + Pinned Footer */}
+        <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden min-h-0">
+          <div className="p-4 sm:p-5 space-y-4 overflow-y-auto flex-1 overscroll-contain">
+            {error && (
+              <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold flex items-center gap-2">
+                <AlertTriangle size={14} />
+                {error}
               </div>
-              <div>
-                <label className="text-[11px] font-semibold text-zinc-700 block mb-1">
-                  Phone Number
-                </label>
-                <input
-                  type="tel"
-                  className="w-full h-9 px-2.5 bg-white border border-zinc-200 rounded-lg text-xs text-zinc-900 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500"
-                  placeholder="+1 (555) 234-8901"
-                  value={customerPhone}
-                  onChange={e => setCustomerPhone(e.target.value)}
-                  id="input-customer-phone"
-                />
+            )}
+
+            {offlineNotice && (
+              <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center gap-2 animate-fade-in">
+                <CheckCircle size={14} />
+                {offlineNotice}
               </div>
-              <div>
-                <label className="text-[11px] font-semibold text-zinc-700 block mb-1">
-                  Email Address
-                </label>
-                <input
-                  type="email"
-                  className="w-full h-9 px-2.5 bg-white border border-zinc-200 rounded-lg text-xs text-zinc-900 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500"
-                  placeholder="customer@domain.com"
-                  value={customerEmail}
-                  onChange={e => setCustomerEmail(e.target.value)}
-                  id="input-customer-email"
-                />
+            )}
+
+            {/* Customer / Reporter Contact */}
+            <div className="p-3.5 bg-zinc-50 rounded-2xl border border-zinc-200/70 space-y-3">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 block">
+                1. Customer / Reporter Information
+              </span>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                <div>
+                  <label className="text-[11px] font-semibold text-zinc-700 block mb-1">
+                    Full Name <span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    className="w-full h-9 px-2.5 bg-white border border-zinc-200 rounded-lg text-xs text-zinc-900 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500"
+                    placeholder="Enter your full name"
+                    value={customerName}
+                    onChange={e => setCustomerName(e.target.value)}
+                    id="input-customer-name"
+                  />
+                </div>
+                <div>
+                  <label className="text-[11px] font-semibold text-zinc-700 block mb-1">
+                    Phone Number
+                  </label>
+                  <input
+                    type="tel"
+                    className="w-full h-9 px-2.5 bg-white border border-zinc-200 rounded-lg text-xs text-zinc-900 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500"
+                    placeholder="+1 (555) 234-8901"
+                    value={customerPhone}
+                    onChange={e => setCustomerPhone(e.target.value)}
+                    id="input-customer-phone"
+                  />
+                </div>
+                <div>
+                  <label className="text-[11px] font-semibold text-zinc-700 block mb-1">
+                    Email Address
+                  </label>
+                  <input
+                    type="email"
+                    className="w-full h-9 px-2.5 bg-white border border-zinc-200 rounded-lg text-xs text-zinc-900 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500"
+                    placeholder="customer@domain.com"
+                    value={customerEmail}
+                    onChange={e => setCustomerEmail(e.target.value)}
+                    id="input-customer-email"
+                  />
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Service Category */}
-          <div>
-            <label className="text-xs font-bold text-zinc-700 block mb-1">
-              Service Category <span className="text-rose-500">*</span>
-            </label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {CATEGORIES.map(cat => {
-                const Icon = cat.icon;
-                const isSelected = category === cat.value;
-                return (
-                  <button
-                    key={cat.value}
-                    type="button"
-                    onClick={() => setCategory(cat.value)}
-                    className={`p-2.5 rounded-xl border text-left flex items-center gap-2 cursor-pointer transition-all ${
-                      isSelected
-                        ? 'bg-rose-50/80 border-rose-400 text-rose-950 font-bold shadow-2xs ring-1 ring-rose-400'
-                        : 'bg-white border-zinc-200 text-zinc-700 hover:bg-zinc-50'
-                    }`}
-                  >
-                    <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${isSelected ? 'bg-rose-600 text-white' : 'bg-zinc-100 text-zinc-500'}`}>
-                      <Icon size={14} />
-                    </div>
-                    <span className="text-xs truncate">{cat.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Issue Title */}
-          <div>
-            <label className="text-xs font-bold text-zinc-700 block mb-1">
-              Issue Title <span className="text-rose-500">*</span>
-            </label>
-            <input
-              type="text"
-              required
-              className="w-full h-10 px-3 bg-white border border-zinc-200 rounded-xl text-xs font-semibold text-zinc-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
-              placeholder="e.g. Wi-Fi unavailable in second-floor laboratory"
-              value={title}
-              onChange={e => setTitle(e.target.value)}
-              id="input-complaint-title"
-            />
-          </div>
-
-          {/* Location & Priority */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {/* Service Category */}
             <div>
               <label className="text-xs font-bold text-zinc-700 block mb-1">
-                Location / Facility <span className="text-rose-500">*</span>
+                Service Category <span className="text-rose-500">*</span>
+              </label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {CATEGORIES.map(cat => {
+                  const Icon = cat.icon;
+                  const isSelected = category === cat.value;
+                  return (
+                    <button
+                      key={cat.value}
+                      type="button"
+                      onClick={() => setCategory(cat.value)}
+                      className={`p-2.5 rounded-xl border text-left flex items-center gap-2 cursor-pointer transition-all ${
+                        isSelected
+                          ? 'bg-rose-50/80 border-rose-400 text-rose-950 font-bold shadow-2xs ring-1 ring-rose-400'
+                          : 'bg-white border-zinc-200 text-zinc-700 hover:bg-zinc-50'
+                      }`}
+                    >
+                      <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${isSelected ? 'bg-rose-600 text-white' : 'bg-zinc-100 text-zinc-500'}`}>
+                        <Icon size={14} />
+                      </div>
+                      <span className="text-xs truncate">{cat.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Issue Title */}
+            <div>
+              <label className="text-xs font-bold text-zinc-700 block mb-1">
+                Issue Title <span className="text-rose-500">*</span>
               </label>
               <input
                 type="text"
                 required
                 className="w-full h-10 px-3 bg-white border border-zinc-200 rounded-xl text-xs font-semibold text-zinc-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
-                placeholder="e.g. Second Floor — Laboratory 2"
-                value={siteName}
-                onChange={e => setSiteName(e.target.value)}
-                id="input-complaint-site"
+                placeholder="e.g. Wi-Fi unavailable in second-floor laboratory"
+                value={title}
+                onChange={e => setTitle(e.target.value)}
+                id="input-complaint-title"
               />
             </div>
 
-            <div>
-              <label className="text-xs font-bold text-zinc-700 block mb-1">
-                Severity / Priority
-              </label>
-              <select
-                className="w-full h-10 px-3 bg-white border border-zinc-200 rounded-xl text-xs font-bold text-zinc-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 cursor-pointer"
-                value={priority}
-                onChange={e => setPriority(e.target.value as InspectionPriority)}
-                id="select-complaint-priority"
-              >
-                <option value="LOW">LOW — Routine request</option>
-                <option value="MEDIUM">MEDIUM — Standard maintenance</option>
-                <option value="HIGH">HIGH — Urgent service impact</option>
-                <option value="CRITICAL">CRITICAL — Complete outage / safety risk</option>
-              </select>
-            </div>
-          </div>
+            {/* Location & Priority */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs font-bold text-zinc-700 block mb-1">
+                  Location / Facility <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  className="w-full h-10 px-3 bg-white border border-zinc-200 rounded-xl text-xs font-semibold text-zinc-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                  placeholder="e.g. Second Floor — Laboratory 2"
+                  value={siteName}
+                  onChange={e => setSiteName(e.target.value)}
+                  id="input-complaint-site"
+                />
+              </div>
 
-          {/* Optional Asset / Equipment */}
-          <div>
-            <label className="text-xs font-bold text-zinc-700 block mb-1">
-              Affected Equipment / Asset <span className="text-zinc-400 font-normal">(optional)</span>
-            </label>
-            <select
-              className="w-full h-10 px-3 bg-white border border-zinc-200 rounded-xl text-xs font-semibold text-zinc-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 cursor-pointer"
-              value={assetId}
-              onChange={e => handleAssetChange(e.target.value)}
-              id="select-complaint-asset"
-            >
-              <option value="">— Select equipment or leave blank —</option>
-              {assets.map(a => (
-                <option key={a.id} value={a.id}>
-                  {a.name} ({a.assetCode}) — {a.location}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Description */}
-          <div>
-            <label className="text-xs font-bold text-zinc-700 block mb-1">
-              Problem Description &amp; Symptoms
-            </label>
-            <textarea
-              rows={3}
-              className="w-full p-3 bg-white border border-zinc-200 rounded-xl text-xs text-zinc-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 resize-none font-medium"
-              placeholder="Describe what is failing, affected users, error lights, or previous troubleshooting..."
-              value={description}
-              onChange={e => setDescription(e.target.value)}
-              id="input-complaint-desc"
-            />
-          </div>
-
-          {/* Evidence Attachments: Photo + Voice Note */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-            {/* Photo Capture */}
-            <div className="p-3 bg-zinc-50 rounded-xl border border-zinc-200/80 space-y-2">
-              <span className="text-[11px] font-bold text-zinc-700 flex items-center gap-1.5">
-                <Camera size={13} className="text-zinc-500" />
-                Attach Photo Evidence (Offline)
-              </span>
-              <label className="h-9 px-3 rounded-lg border border-dashed border-zinc-300 bg-white hover:bg-zinc-50 text-xs font-bold text-zinc-600 flex items-center justify-center gap-1.5 cursor-pointer transition-colors">
-                <Camera size={13} />
-                <span>{selectedPhoto ? selectedPhoto.name : 'Select or Take Photo'}</span>
-                <input type="file" accept="image/*" onChange={handlePhotoSelect} className="hidden" />
-              </label>
-              {photoPreview && (
-                <div className="relative rounded-lg overflow-hidden border border-zinc-200 w-20 h-16">
-                  <img src={photoPreview} alt="Preview" className="w-full h-full object-cover" />
-                  <button
-                    type="button"
-                    onClick={() => { setSelectedPhoto(null); setPhotoPreview(null); }}
-                    className="absolute top-1 right-1 p-0.5 bg-black/60 text-white rounded cursor-pointer"
-                  >
-                    <X size={10} />
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {/* Voice Note Recording */}
-            <div className="p-3 bg-zinc-50 rounded-xl border border-zinc-200/80 space-y-2">
-              <span className="text-[11px] font-bold text-zinc-700 flex items-center gap-1.5">
-                <Mic size={13} className="text-zinc-500" />
-                Record Voice Note (Offline)
-              </span>
-              <div className="flex items-center gap-2">
-                {!isRecording ? (
-                  <button
-                    type="button"
-                    onClick={startRecording}
-                    className="h-9 px-3 rounded-lg bg-white hover:bg-zinc-100 border border-zinc-200 text-xs font-bold text-zinc-700 flex items-center gap-1.5 cursor-pointer"
-                  >
-                    <Mic size={13} className="text-rose-500" />
-                    <span>Record Audio</span>
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={stopRecording}
-                    className="h-9 px-3 rounded-lg bg-rose-600 text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer animate-pulse"
-                  >
-                    <Square size={12} />
-                    <span>Stop ({voiceDuration}s)</span>
-                  </button>
-                )}
-                {voiceBlob && !isRecording && (
-                  <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-1 rounded-md border border-emerald-200 flex items-center gap-1">
-                    <CheckCircle size={11} /> {voiceDuration}s voice note
-                  </span>
-                )}
+              <div>
+                <label className="text-xs font-bold text-zinc-700 block mb-1">
+                  Severity / Priority
+                </label>
+                <select
+                  className="w-full h-10 px-3 bg-white border border-zinc-200 rounded-xl text-xs font-bold text-zinc-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 cursor-pointer"
+                  value={priority}
+                  onChange={e => setPriority(e.target.value as InspectionPriority)}
+                  id="select-complaint-priority"
+                >
+                  <option value="LOW">LOW — Routine request</option>
+                  <option value="MEDIUM">MEDIUM — Standard maintenance</option>
+                  <option value="HIGH">HIGH — Urgent service impact</option>
+                  <option value="CRITICAL">CRITICAL — Complete outage / safety risk</option>
+                </select>
               </div>
             </div>
+
+            {/* Optional Asset / Equipment */}
+            <div>
+              <label className="text-xs font-bold text-zinc-700 block mb-1">
+                Affected Equipment / Asset <span className="text-zinc-400 font-normal">(optional)</span>
+              </label>
+              <select
+                className="w-full h-10 px-3 bg-white border border-zinc-200 rounded-xl text-xs font-semibold text-zinc-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 cursor-pointer"
+                value={assetId}
+                onChange={e => handleAssetChange(e.target.value)}
+                id="select-complaint-asset"
+              >
+                <option value="">— Select equipment or leave blank —</option>
+                {assets.map(a => (
+                  <option key={a.id} value={a.id}>
+                    {a.name} ({a.assetCode}) — {a.location}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Description */}
+            <div>
+              <label className="text-xs font-bold text-zinc-700 block mb-1">
+                Problem Description &amp; Symptoms
+              </label>
+              <textarea
+                rows={3}
+                className="w-full p-3 bg-white border border-zinc-200 rounded-xl text-xs text-zinc-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 resize-none font-medium"
+                placeholder="Describe what is failing, affected users, error lights, or previous troubleshooting..."
+                value={description}
+                onChange={e => setDescription(e.target.value)}
+                id="input-complaint-desc"
+              />
+            </div>
+
+            {/* Evidence Attachments: Photo + Voice Note */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+              {/* Photo Capture */}
+              <div className="p-3 bg-zinc-50 rounded-xl border border-zinc-200/80 space-y-2">
+                <span className="text-[11px] font-bold text-zinc-700 flex items-center gap-1.5">
+                  <Camera size={13} className="text-zinc-500" />
+                  Attach Photo Evidence (Offline)
+                </span>
+                <label className="h-9 px-3 rounded-lg border border-dashed border-zinc-300 bg-white hover:bg-zinc-50 text-xs font-bold text-zinc-600 flex items-center justify-center gap-1.5 cursor-pointer transition-colors">
+                  <Camera size={13} />
+                  <span>{selectedPhoto ? selectedPhoto.name : 'Select or Take Photo'}</span>
+                  <input type="file" accept="image/*" onChange={handlePhotoSelect} className="hidden" />
+                </label>
+                {photoPreview && (
+                  <div className="relative rounded-lg overflow-hidden border border-zinc-200 w-20 h-16">
+                    <img src={photoPreview} alt="Preview" className="w-full h-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => { setSelectedPhoto(null); setPhotoPreview(null); }}
+                      className="absolute top-1 right-1 p-0.5 bg-black/60 text-white rounded cursor-pointer"
+                    >
+                      <X size={10} />
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Voice Note Recording */}
+              <div className="p-3 bg-zinc-50 rounded-xl border border-zinc-200/80 space-y-2">
+                <span className="text-[11px] font-bold text-zinc-700 flex items-center gap-1.5">
+                  <Mic size={13} className="text-zinc-500" />
+                  Record Voice Note (Offline)
+                </span>
+                <div className="flex items-center gap-2">
+                  {!isRecording ? (
+                    <button
+                      type="button"
+                      onClick={startRecording}
+                      className="h-9 px-3 rounded-lg bg-white hover:bg-zinc-100 border border-zinc-200 text-xs font-bold text-zinc-700 flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <Mic size={13} className="text-rose-500" />
+                      <span>Record Audio</span>
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={stopRecording}
+                      className="h-9 px-3 rounded-lg bg-rose-600 text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer animate-pulse"
+                    >
+                      <Square size={12} />
+                      <span>Stop ({voiceDuration}s)</span>
+                    </button>
+                  )}
+                  {voiceBlob && !isRecording && (
+                    <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-1 rounded-md border border-emerald-200 flex items-center gap-1">
+                      <CheckCircle size={11} /> {voiceDuration}s voice note
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Workflow Note */}
+            <div className="p-3 bg-zinc-50 rounded-xl border border-zinc-200/80 text-[11px] text-zinc-500 space-y-1">
+              <p className="font-semibold text-zinc-700">Customer Workflow Note:</p>
+              <p>
+                • Saved locally in IndexedDB immediately. Works 100% offline.
+              </p>
+              <p>
+                • <strong>Admin</strong> will review and assign an authorized <strong>Supervisor</strong> &amp; <strong>Technician</strong> to perform field work.
+              </p>
+            </div>
           </div>
 
-          {/* Workflow Note */}
-          <div className="p-3 bg-zinc-50 rounded-xl border border-zinc-200/80 text-[11px] text-zinc-500 space-y-1">
-            <p className="font-semibold text-zinc-700">Customer Workflow Note:</p>
-            <p>
-              • Saved locally in IndexedDB immediately. Works 100% offline.
-            </p>
-            <p>
-              • <strong>Admin</strong> will review and assign an authorized <strong>Supervisor</strong> &amp; <strong>Technician</strong> to perform field work.
-            </p>
-          </div>
-
-          {/* Submit Buttons */}
-          <div className="flex items-center justify-end gap-2.5 pt-2">
+          {/* Fixed/Pinned Modal Actions Footer */}
+          <div className="p-3.5 sm:p-4 bg-zinc-50/95 border-t border-zinc-100 flex items-center justify-end gap-2.5 shrink-0">
             <button
               type="button"
               onClick={onClose}

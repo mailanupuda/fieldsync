@@ -26,7 +26,7 @@ export default function InvoiceViewModal({
   const isPaid = invoice.status === 'PAID';
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-900/80 backdrop-blur-sm animate-fade-in overflow-y-auto">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-zinc-900/80 backdrop-blur-sm animate-fade-in overflow-y-auto">
       <div className="bg-white rounded-3xl max-w-2xl w-full overflow-hidden shadow-2xl border border-zinc-200 flex flex-col my-8 max-h-[92vh]">
         {/* Modal Controls Bar */}
         <div className="p-4 border-b border-zinc-100 flex items-center justify-between bg-zinc-50/70 print:hidden">

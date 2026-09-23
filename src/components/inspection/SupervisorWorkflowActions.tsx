@@ -335,7 +335,7 @@ export default function SupervisorWorkflowActions({ inspection, onUpdated }: Pro
 
       {/* Rework Modal */}
       {showReworkModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-900/60 backdrop-blur-xs">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-zinc-900/60 backdrop-blur-xs">
           <div className="bg-white rounded-2xl border border-zinc-200 shadow-2xl max-w-md w-full p-5 space-y-4">
             <div className="flex items-center gap-2.5 text-rose-600">
               <RotateCcw size={18} />

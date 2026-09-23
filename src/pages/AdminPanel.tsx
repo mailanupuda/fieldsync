@@ -900,7 +900,7 @@ function InspectionsTab({
 
       {/* Triage Assignment Modal */}
       {triageInspection && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-900/60 backdrop-blur-xs animate-fade-in">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-zinc-900/60 backdrop-blur-xs animate-fade-in">
           <div className="bg-white rounded-3xl border border-zinc-200 shadow-2xl max-w-lg w-full overflow-hidden flex flex-col">
             <div className="p-5 border-b border-zinc-100 bg-gradient-to-r from-amber-50 to-orange-50 flex items-center justify-between">
               <div>
