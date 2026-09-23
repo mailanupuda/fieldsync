@@ -505,7 +505,7 @@ export default function ReportComplaintModal({ isOpen, onClose, onSuccess }: Pro
                 <label className="h-9 px-3 rounded-lg border border-dashed border-zinc-300 bg-white hover:bg-zinc-50 text-xs font-bold text-zinc-600 flex items-center justify-center gap-1.5 cursor-pointer transition-colors">
                   <Camera size={13} />
                   <span>{selectedPhoto ? selectedPhoto.name : 'Select or Take Photo'}</span>
-                  <input type="file" accept="image/*" onChange={handlePhotoSelect} className="hidden" />
+                  <input type="file" accept="image/*" capture="environment" onChange={handlePhotoSelect} className="hidden" />
                 </label>
                 {photoPreview && (
                   <div className="relative rounded-lg overflow-hidden border border-zinc-200 w-20 h-16">
