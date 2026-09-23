@@ -14,7 +14,6 @@ import type {
   WorkEvidence,
   AssetScanEvent,
   SlaPolicy,
-  VoiceNote,
 } from '@/types/db';
 
 // Cache missing Supabase tables to avoid repeated 404 network error spam in browser.
@@ -152,12 +151,10 @@ export async function syncFromSupabase(): Promise<boolean> {
       await db.checklistItems.bulkPut(localItems);
     }
 
-    // 4. Fetch remote audit events directly from Supabase database
-    const { data: remoteAuditEvents } = await supabase
-      .from('audit_events')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(50);
+    // 4. Fetch remote audit events directly from Supabase database (safe against RLS 403)
+    const remoteAuditEvents = await safeFetchRows('audit_events', () =>
+      supabase.from('audit_events').select('*').order('created_at', { ascending: false }).limit(50)
+    );
 
     if (remoteAuditEvents && remoteAuditEvents.length > 0) {
       const localAuditEvents: AuditEvent[] = remoteAuditEvents.map((row) => ({
@@ -340,63 +337,8 @@ export async function syncFromSupabase(): Promise<boolean> {
       await db.slaPolicies.bulkPut(localSla);
     }
 
-    // 12. Push local audit events to Supabase (bi-directional audit trail)
-    try {
-      const localAuditEvents = await db.auditEvents.toArray();
-      const pendingAudit = localAuditEvents.filter((e) => (e as any).syncStatus === 'PENDING' || !(e as any).syncStatus);
-      if (pendingAudit.length > 0) {
-        const rows = pendingAudit.map((e) => ({
-          id: e.id,
-          operation_id: e.operationId ?? null,
-          user_id: e.userId,
-          user_name: e.userName || 'Staff',
-          device_id: e.deviceId || 'device-local',
-          entity_type: e.entityType,
-          entity_id: e.entityId,
-          inspection_id: e.inspectionId,
-          action: e.action,
-          field: e.field ?? null,
-          before_value: e.beforeValue ?? null,
-          after_value: e.afterValue ?? null,
-          created_at: typeof e.createdAt === 'string' ? e.createdAt : String(e.createdAt),
-        }));
-        const { error: auditError } = await supabase.from('audit_events').upsert(rows, { onConflict: 'id' });
-        if (!auditError) {
-          console.info(`[CloudSync] Pushed ${rows.length} audit events to Supabase.`);
-        } else {
-          console.debug('[CloudSync] Remote audit_events table write skipped (RLS/local mode):', auditError.message);
-        }
-      }
-    } catch {
-      // Non-critical — audit push failures don't block sync
-    }
-
-    // 13. Pull voice note metadata from Supabase (blobs stay local)
-    const remoteVoiceNotes = await safeFetchRows('voice_notes', () =>
-      supabase.from('voice_notes').select('*')
-    );
-    if (remoteVoiceNotes && remoteVoiceNotes.length > 0) {
-      const localVN: VoiceNote[] = remoteVoiceNotes.map((row) => ({
-        id: row.id,
-        inspectionId: row.inspection_id,
-        checklistItemId: row.checklist_item_id ?? undefined,
-        technicianId: row.technician_id ?? '',
-        fileName: row.file_name || 'voice-note.webm',
-        mimeType: row.mime_type || 'audio/webm',
-        duration: Number(row.duration || 0),
-        remoteUrl: row.remote_url ?? undefined,
-        cloudinaryPublicId: row.cloudinary_public_id ?? undefined,
-        uploadStatus: (row.upload_status as any) || 'COMPLETED',
-        uploadedBytes: Number(row.total_bytes || 0),
-        totalBytes: Number(row.total_bytes || 0),
-        createdAt: row.created_at,
-        updatedAt: row.updated_at || row.created_at,
-        schemaVersion: 3,
-        syncStatus: 'SYNCED',
-      }));
-      await db.voiceNotes.bulkPut(localVN);
-      console.info(`[CloudSync] Synced ${localVN.length} voice notes from Supabase.`);
-    }
+    // Note: audit_events are securely pushed server-side via syncManager /api/sync/push
+    // to comply with Supabase Row-Level-Security (RLS). Voice notes remain stored in local IndexedDB.
 
     return true;
   } catch (err) {
